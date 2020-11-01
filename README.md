@@ -81,4 +81,8 @@ Only rows that match the filter string for this column should be displayed.
 
 ## Design decisions and feedback
 
-_Here you can leave any comments about your design decisions, further instructions and comments as well as feedback._
+As I'm not allowed to add any additional library, I will be able to check only if the table is rendered. Also to perform this tasks I would suggest to use any standard library such as ag-Grid to ease the process.
+
+Due to connectivity issues I couldn't commit changes until Sunday late.
+
+Note: I have experience using Jasmine instead of JEST, and I'm also experienced using NPM and not Yarn. However this is a minor issue for me, most of the work is based in React and not on setting up the project.
