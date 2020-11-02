@@ -26,3 +26,37 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+/*
+Used default tag as selector to make the task easier.
+*/
+table{
+  margin:20px;
+  display: block;
+  width: 100%;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  max-width: 100%;
+  overflow: auto;
+  border-collapse: collapse;
+}
+
+tr{
+  background-color: #ffffff;
+  border-top: 1px solid #dfe2e5;
+}
+
+td,th{
+  padding: 6px 13px;
+  border: 1px solid #dfe2e5;
+  box-sizing:border-box;
+}
+
+th:hover{
+  cursor: pointer;
+}
+
+.amountCell{
+  text-align: right;
+}
