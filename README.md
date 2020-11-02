@@ -80,9 +80,10 @@ Only rows that match the filter string for this column should be displayed.
 -   If anything is unclear don't hesitate to contact us
 
 ## Design decisions and feedback
+Based on Task 3 description, it is not very clear if the filter should be commuted or should apply only to one column. I choose to clear any filter when the focus is lost, this way the table will behave as expected. Also the behavior of the filter inputs are unclear. Right now when the filter fields are updated it renders the complete table again. It would be ideal to create a row component to render in this situation instead of the complete application.
 
 As I'm not allowed to add any additional library, I will be able to check only if the table is rendered. Also to perform this tasks I would suggest to use any standard library such as ag-Grid to ease the process.
 
 Due to connectivity issues I couldn't commit changes until Sunday late.
 
-Note: I have experience using Jasmine instead of JEST, and I'm also experienced using NPM and not Yarn. However this is a minor issue for me, most of the work is based in React and not on setting up the project.
+I don't think this test can measure all my knowledge on Javascript, React or any other related framework. Neither my skills for testing applications. Please feel free to discuss with me anything related to this decisions. I have experience using Jasmine instead of JEST, and I'm also experienced using NPM and not Yarn. However this is a minor issue for me, most of the work is based in React and not on setting up the project.

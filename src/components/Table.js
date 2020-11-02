@@ -7,9 +7,14 @@ import DescLogo from './../resources/order-descending.svg'
 class Table extends Component {
   constructor(props) {
     super(props);
-    console.debug("Building table.");
     this.data = props.tableData;
     this.sortColumn = props.orderBy;
+    this.filter = props.filter;
+    if(typeof(this.filter) === 'undefined'){
+      this.filter = [];
+      this.filter.index = -1;
+      this.filter.filterValue = "";
+    }
   }
 
   componentWillMount(){
@@ -17,7 +22,6 @@ class Table extends Component {
   }
 
   sortByColumn(orderColumn){
-      console.debug("Column " + orderColumn.id + " sorted.");
       if(typeof(this.sortColumn) ===  'undefined'){
         // First click on any header
         this.sortColumn = orderColumn;
@@ -31,7 +35,7 @@ class Table extends Component {
 
       }
       this.sortData(this.data,this.sortColumn);
-      ReactDOM.render(<Table tableData={this.data} orderBy={this.sortColumn} filter={[]} />, document.getElementById('root'))
+      ReactDOM.render(<Table tableData={this.data} orderBy={this.sortColumn} filter={this.filter} />, document.getElementById('root'))
   }
 
   sortData(dataBefore,orderColumn){
@@ -52,7 +56,6 @@ class Table extends Component {
           return 0;
         });
       }else {
-        console.log("order date")
         // Sorting Release Date column
         dataBefore.rows.sort(function (a, b) {
           if(typeof a[orderColumn.id] === 'undefined')
@@ -69,10 +72,7 @@ class Table extends Component {
 
           let dateA = a[orderColumn.id];
           let dateB = b[orderColumn.id];
-          console.log("a");
-          console.log(a);
-          console.log("b");
-          console.log(b);
+
           // Create Date object based on A and B strings when possible
           if(a[orderColumn.id].match( /\d{2}-\d{2}-\d{4}/ )){
             dateA = new Date(a[orderColumn.id].replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3"));
@@ -89,8 +89,9 @@ class Table extends Component {
             if (dateA < dateB) {
               return -1;
             }
-            return 0;
           }
+
+          return 0;
         });
 
       }
@@ -102,8 +103,15 @@ class Table extends Component {
     return dataBefore;
   }
 
+  handleFilterUpdate(fieldInput,orderColumn) {
+    console.log("Filtrando");
+    this.filter.index = orderColumn;
+    this.filter.filterValue = fieldInput.target.value;
+
+    ReactDOM.render(<Table tableData={this.data} orderBy={this.sortColumn} filter={this.filter} />, document.getElementById('root'))
+  }
+
   renameHeaders(){
-    console.debug("Renaming header.");
     // This method will be executed when each header is clicked
     this.headers = this.data.columns.map((eachHeader,headerIndex)=>{
       if(eachHeader.id === "number"){
@@ -122,13 +130,11 @@ class Table extends Component {
   }
 
   render() {
-    console.debug("Rendering table.");
     const headersTags = this.headers.map((eachHeader)=>{
       let title = eachHeader.title;
       let orderIcon;
 
       if(typeof(this.sortColumn) !== 'undefined' && this.sortColumn.id === eachHeader.id){
-      console.debug(" Order by " + this.sortColumn.id);
         if(this.sortColumn.orderAsc){
           orderIcon = <img src={AscLogo} alt="Ascending Order" />;
         }else{
@@ -136,33 +142,76 @@ class Table extends Component {
         }
       }
       return(
-        <th key={eachHeader.id} id={eachHeader.id} onClick={() => this.sortByColumn(eachHeader)}>{title} {orderIcon}</th>
+        <th key={'Sort' + eachHeader.id} id={eachHeader.id} onClick={() => this.sortByColumn(eachHeader)}>{title} {orderIcon}</th>
       )
     });
 
-    const rows = this.data.rows.map((eachRow,index) =>
-      <tr key={index}>
-        {this.headers.map((eachHeader,headerIndex)=>{
-          let rowContent = eachRow[eachHeader.id];
-          let amountCell = '';
-          if(headerIndex === 2){ // This equals 2 is to find the 'release date' column
-            rowContent = (eachRow[eachHeader.id].match( /\d{2}-\d{2}-\d{4}/ ))?eachRow[eachHeader.id].replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3"):eachRow[eachHeader.id];
-          }if(headerIndex > 2){ // This greater than 2 is to find last two columns which will be formatted and will be aligned to the right through the class amountCell
-            rowContent = (typeof eachRow[eachHeader.id] === 'number')?new Intl.NumberFormat("en-EN").format(eachRow[eachHeader.id]):0;
-            amountCell = ' amountCell';
-          }
+    const headersFilters = this.headers.map((eachHeader,eachHeaderIndex)=>{
+      let customFilterFieldValue = "";
+      if(eachHeaderIndex === this.filter.index)
+        customFilterFieldValue = this.filter.filterValue;
+      return(
+        <th key={'Filter'+eachHeader.id}><input name={'Filter'+eachHeader.id} onChange={e => this.handleFilterUpdate(e,eachHeader.index)}
+        onBlur={(e) => {
+          e.target.value = "";
+          this.filter = [];
+        }}  value={customFilterFieldValue}
+        /></th>
+      )
+    });
+
+    const rows = this.data.rows.map((eachRow,index) => {
+
+      if(typeof(this.filter) !== 'undefined' && this.filter.index >= 0){
+        if(eachRow[this.headers[this.filter.index].id].toString().indexOf(this.filter.filterValue) > -1){
           return(
-            <td key={headerIndex + '-' + index} className={'eachCell' + amountCell}>{rowContent}</td>
+            <tr key={index}>
+              {this.headers.map((eachHeader,headerIndex)=>{
+                let rowContent = eachRow[eachHeader.id];
+                let amountCell = '';
+                if(headerIndex === 2){ // This equals 2 is to find the 'release date' column
+                  rowContent = (eachRow[eachHeader.id].match( /\d{2}-\d{2}-\d{4}/ ))?eachRow[eachHeader.id].replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3"):eachRow[eachHeader.id];
+                }if(headerIndex > 2){ // This greater than 2 is to find last two columns which will be formatted and will be aligned to the right through the class amountCell
+                  rowContent = (typeof eachRow[eachHeader.id] === 'number')?new Intl.NumberFormat("en-EN").format(eachRow[eachHeader.id]):0;
+                  amountCell = ' amountCell';
+                }
+                return(
+                  <td key={headerIndex + '-' + index} className={'eachCell' + amountCell}>{rowContent}</td>
+                )
+              })}
+            </tr>
           )
-        })}
-      </tr>
-    );
+        }else return;
+      }else{
+        return(
+          <tr key={index}>
+            {this.headers.map((eachHeader,headerIndex)=>{
+              let rowContent = eachRow[eachHeader.id];
+              let amountCell = '';
+              if(headerIndex === 2){ // This equals 2 is to find the 'release date' column
+                rowContent = (eachRow[eachHeader.id].match( /\d{2}-\d{2}-\d{4}/ ))?eachRow[eachHeader.id].replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3"):eachRow[eachHeader.id];
+              }if(headerIndex > 2){ // This greater than 2 is to find last two columns which will be formatted and will be aligned to the right through the class amountCell
+                rowContent = (typeof eachRow[eachHeader.id] === 'number')?new Intl.NumberFormat("en-EN").format(eachRow[eachHeader.id]):0;
+                amountCell = ' amountCell';
+              }
+              return(
+                <td key={headerIndex + '-' + index} className={'eachCell' + amountCell}>{rowContent}</td>
+              )
+            })}
+          </tr>
+        )
+      }
+
+    });
 
     return (
       <table key="TableKey">
           <thead>
               <tr>
                 {headersTags}
+              </tr>
+              <tr>
+                {headersFilters}
               </tr>
           </thead>
           <tbody>

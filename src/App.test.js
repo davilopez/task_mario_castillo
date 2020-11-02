@@ -88,26 +88,24 @@ describe('Task 3', () => {
     let table = container.querySelector('table');
 
     const thead = table.tHead;
-    thead.rows[0].cells[1];
-    const movieHeader = thead.rows[0].cells[1];
-    expect(movieHeader.innerHTML.trim()).toBe("Movie");
+    const movieFilter = thead.rows[1].cells[1].getElementsByTagName("input")[0];
 
     let tbody = table.getElementsByTagName("tbody")[0];
-    let trows = tbody.getElementsByTagName("tr")[0]; // Get first row
-    let tcell = tbody.getElementsByTagName("td")[1]; // Get Movie column
-    expect(tcell.innerHTML.trim()).toEqual("Iron Man"); // First movie name in the list is Iron Man
+    let trows = tbody.getElementsByTagName("tr");
+    expect(trows.length).toEqual(26); // First movie name in the list is Iron Man
 
-    // Perform click on "Movie" header
+    // Perform change on "Movie" filter field
     act(() => {
-      movieHeader.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      movieFilter.value = "Captain";
+      // TODO: Fire synthetic event instead of basic event to trigger the onChange React method.
+      movieFilter.dispatchEvent(new Event('change', { 'bubbles': true }));
     });
 
     table = container.querySelector('table');
     // The table should have exact amount of rows
     tbody = table.getElementsByTagName("tbody")[0];
-    trows = tbody.getElementsByTagName("tr")[0]; // Get first row
-    tcell = tbody.getElementsByTagName("td")[1]; // Get Movie column
-    expect(tcell.innerHTML.trim()).toEqual("Ant-Man"); // First movie name after sorting by name is Ant-Man
+    trows = tbody.getElementsByTagName("tr"); // Get first row
+    expect(trows.length).toEqual(4); // Number of movies with name including "Captain"
 
   });
 });
